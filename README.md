@@ -34,7 +34,7 @@ Building on the setup from the setup in Getting Started with the Arduino and Dra
 ![Arduino Physical Setup](readme-images/arduino-physical-setup.jpg)
 
 ## Step 3 - The Arduino Code
-Now that the sensor is connected to the Arduino, the code needs to be modified from the `Dragino Lora Shield Guide` to send the sensor data instead of the static letters in the myData variable.
+Now that the sensor is connected to the Arduino, the code needs to be modified from the `Getting Started with the Arduino and Dragino Guide` to send the sensor data instead of the static letters in the myData variable.
 
 > Make sure you get the code from the `Dragino Lora Shield Guide` which importantly has the APPEUI, DEVEUI, APPKEY and Pin Mapping configuration correct.
 
@@ -50,93 +50,93 @@ In the `void setup()` function add `Wire.begin();` above the `Serial.begin(9600)
 
 ```C++
 void setup() {
-    Wire.begin();
-    Serial.begin(9600);
-    Serial.println(F("Starting"));
-    ...
+  Wire.begin();
+  Serial.begin(9600);
+  Serial.println(F("Starting"));
+  ...
 }
 ```
 
 Above the `//LMIC init` line add the following code:
 
 ```C++
-sensor.begin(); // reset sensor
-delay(1000); // give some time to boot up
-Serial.print("I2C Soil Moisture Sensor Address: ");
-Serial.println(sensor.getAddress(),HEX);
-Serial.print("Sensor Firmware version: ");
-Serial.println(sensor.getVersion(),HEX);
-Serial.println();
+  sensor.begin(); // reset sensor
+  delay(1000); // give some time to boot up
+  Serial.print("I2C Soil Moisture Sensor Address: ");
+  Serial.println(sensor.getAddress(),HEX);
+  Serial.print("Sensor Firmware version: ");
+  Serial.println(sensor.getVersion(),HEX);
+  Serial.println();
 ```
 
 >This will reset the soil moisture sensor and display the I2C address and firmware version in the serial monitor
 
-Next, in the `void do_send(osjob_t* j)` function replace:
+Next, in the `void do_send(osjob_t* j)` function replace the following code:
 
 ```C++
-// Prepare upstream data transmission at the next possible time.
-LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
-```
+  // Prepare upstream data transmission at the next possible time.
+  LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
+````
 
-with the following code:
-```C++
-//Wait until the sensor is not busy
-while (sensor.isBusy()) delay(50);
+With the following code:
+  ```C++
+  //Wait until the sensor is not busy
+  while (sensor.isBusy()) delay(50);
 
-//Record the soil moisture capacitance, temperature, and light readings
-int soilMoistureCapacitance = sensor.getCapacitance();
-int temperature = sensor.getTemperature();
-int light = sensor.getLight(true);
-sensor.sleep(); //sleep the sensor to save power
+  //Record the soil moisture capacitance, temperature, and light readings
+  int soilMoistureCapacitance = sensor.getCapacitance();
+  int temperature = sensor.getTemperature();
+  int light = sensor.getLight(true);
+  sensor.sleep(); //sleep the sensor to save power
 
-//Display the values in the serial monitor for reference
-Serial.print("Soil Moisture Capacitance: ");
-Serial.print(soilMoistureCapacitance); //read capacitance register
-Serial.print(", Temperature: ");
-Serial.print(temperature /(float)10); //temperature register
-Serial.print(", Light: ");
-Serial.println(light); //request light measurement, wait and read light register
+  //Display the values in the serial monitor for reference
+  Serial.print("Soil Moisture Capacitance: ");
+  Serial.print(soilMoistureCapacitance); //read capacitance register
+  Serial.print(", Temperature: ");
+  Serial.print(temperature /(float)10); //temperature register
+  Serial.print(", Light: ");
+  Serial.println(light); //request light measurement, wait and read light register
 
-//Convert the values from numbers into a payload
-//Break the soilMoistureCapacitance, temperature and light into Bytes in individual buffer arrays
-byte payloadA[2];
-payloadA[0] = highByte(soilMoistureCapacitance);
-payloadA[1] = lowByte(soilMoistureCapacitance);
-byte payloadB[2];
-payloadB[0] = highByte(temperature);
-payloadB[1] = lowByte(temperature);
-byte payloadC[2];
-payloadC[0] = highByte(light);
-payloadC[1] = lowByte(light);
+  //Convert the values from numbers into a payload
+  //Break the soilMoistureCapacitance, temperature and light into Bytes in individual buffer arrays
+  byte payloadA[2];
+  payloadA[0] = highByte(soilMoistureCapacitance);
+  payloadA[1] = lowByte(soilMoistureCapacitance);
+  byte payloadB[2];
+  payloadB[0] = highByte(temperature);
+  payloadB[1] = lowByte(temperature);
+  byte payloadC[2];
+  payloadC[0] = highByte(light);
+  payloadC[1] = lowByte(light);
 
-//Get the size of each buffer array (in this case they will always be 2, but this could be used if they were variable)
-int sizeofPayloadA = sizeof(payloadA);
-int sizeofPayloadB = sizeof(payloadB);
-int sizeofPayloadC = sizeof(payloadC);
+  //Get the size of each buffer array (in this case they will always be 2, but this could be used if they were variable)
+  int sizeofPayloadA = sizeof(payloadA);
+  int sizeofPayloadB = sizeof(payloadB);
+  int sizeofPayloadC = sizeof(payloadC);
 
-//Make a buffer array big enough for all the values
-byte payload[sizeofPayloadA + sizeofPayloadB + sizeofPayloadC];
+  //Make a buffer array big enough for all the values
+  byte payload[sizeofPayloadA + sizeofPayloadB + sizeofPayloadC];
 
-//Add each of the individual buffer arrays the single large buffer array
-memcpy(payload, payloadA, sizeofPayloadA);
-memcpy(payload + sizeofPayloadA, payloadB, sizeofPayloadB);
-memcpy(payload + sizeofPayloadA + sizeofPayloadB, payloadC, sizeofPayloadC);
+  //Add each of the individual buffer arrays the single large buffer array
+  memcpy(payload, payloadA, sizeofPayloadA);
+  memcpy(payload + sizeofPayloadA, payloadB, sizeofPayloadB);
+  memcpy(payload + sizeofPayloadA + sizeofPayloadB, payloadC, sizeofPayloadC);
 
-// Prepare upstream data transmission at the next possible time.  
-LMIC_setTxData2(1, payload, sizeof(payload), 0);
+  // Prepare upstream data transmission at the next possible time.  
+  LMIC_setTxData2(1, payload, sizeof(payload), 0);
 ```
 
 ### What does this code do?
-This code will
+This code will:
 1. First wait until the sensor is not busy.
 1. Then it will record the soil moisture capacitance, temperature, and light readings from the sensor.
 1. Next it will display the values in the serial monitor so they can be checked easily.
 1. The code converts the values from numbers into a payload made of a buffer array that can be sent to The Things Network. To find out more about this process [here](https://www.thethingsnetwork.org/docs/devices/bytes.html).
-1. Finally the newly created payload is queued for transmission (instead of the static "Hello, world!" text to The Things Network.)
+1. Finally the newly created payload is queued for transmission (instead of the static "Hello, world!" text) to The Things Network.
 
 ### Testing
 1. Connect the Arduino to your computer using the USB cable.
-1. In the Arduino IDE ensure that the correct port is selected by going to `Tools -> Port:` and check that the Arduino's is selected
+1. In the Arduino IDE ensure that the correct port is selected by going to `Tools -> Port:` and check that the Arduino's port is selected
 1. Ensure that the correct board is selected by going to `Tools -> Boards: <..> -> Arduino AVR Boards` and selecting the type of board you have
 1. Finally click the arrow button in the top left to upload your code to the Arduino.
 1. You should see a 'successful upload' message in the bottom of the Arduino IDE
@@ -188,7 +188,7 @@ It then decodes each of the buffers into numbers, divides the temperature by 10 
 
 Finally the numbers are returned as field 1, field 2 and field 3.
 
-- Click the `Save payload functions` button
+**NOTE:** Click the `Save payload functions` button at the bottom of that page.
 
 ### The Decoded Message
 
