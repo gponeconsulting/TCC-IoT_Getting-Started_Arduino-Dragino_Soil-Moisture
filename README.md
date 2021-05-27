@@ -1,17 +1,17 @@
 # Moisture Sensor
-This guide is a continuation of the `Getting Started with the Arduino and Dragino Guide` and will make use of the application (on The Things Network) and device (physical Arduino + Dragino) set up during that guide. If you haven't followed the previous guide you will need to do that first, and  have:
+This guide is a continuation of the `Getting Started with the Arduino and Dragino Guide` and will make use of the application (on The Things Stack) and device (physical Arduino + Dragino) set up during that guide. If you haven't followed the previous guide you will need to do that first, and  have:
 - The Arduino and Dragino connected correctly, with an antenna
 - The Arduino connected your computer, and communicating correctly
 - The Arduino IDE installed
 - The `MCCI LoRaWAN LMIC library` installed and configured correctly, and
-- The Arduino/Dragino registered and communicating with The Things Network
+- The Arduino/Dragino registered and communicating with The Things Stack
 
 ## What you will need
 To follow this guide, you will The setup from the previous guide, with the addition of:
 - An [I2C Soil moisture sensor](https://www.tindie.com/products/miceuz/i2c-soil-moisture-sensor/).
 - 4 jump wires.
 
-You will still need to be in range of a Gateway connected to The Things Network which you can find out about [here](https://www.thethingsnetwork.org/community).
+You will still need to be in range of a Gateway connected to The Things Stack which you can find out about [here](https://www.thethingsnetwork.org/community).
 
 ## Step 1 - Install Library
 Install a library to help use the soil moisture sensor.
@@ -131,8 +131,8 @@ This code will:
 1. First wait until the sensor is not busy.
 1. Then it will record the soil moisture capacitance, temperature, and light readings from the sensor.
 1. Next it will display the values in the serial monitor so they can be checked easily.
-1. The code converts the values from numbers into a payload made of a buffer array that can be sent to The Things Network. To find out more about this process [here](https://www.thethingsnetwork.org/docs/devices/bytes.html).
-1. Finally the newly created payload is queued for transmission (instead of the static "Hello, world!" text) to The Things Network.
+1. The code converts the values from numbers into a payload made of a buffer array that can be sent to The Things Stack. To find out more about this process [here](https://www.thethingsnetwork.org/docs/devices/bytes.html).
+1. Finally the newly created payload is queued for transmission (instead of the static "Hello, world!" text) to The Things Stack.
 
 ### Testing
 1. Connect the Arduino to your computer using the USB cable.
@@ -141,18 +141,18 @@ This code will:
 1. Finally click the arrow button in the top left to upload your code to the Arduino.
 1. You should see a 'successful upload' message in the bottom of the Arduino IDE
 
-After it has finished uploading you can check the monitor at `Tools -> Serial Monitor` to see if it is working. You should see it connect to The Things Network, make measurements and send those measurements.
+After it has finished uploading you can check the monitor at `Tools -> Serial Monitor` to see if it is working. You should see it connect to The Things Stack, make measurements and send those measurements.
 
-You can also now go to the `Data` tab on your The Things Network application to see the data being sent.
+You can also now go to the `Live Data` tab on your The Things Stack application to see the data being sent.
 
 *Remember: Don't be worried if it fails to connect a few times*
 
 ![Connect & Measure Successful](readme-images/connect-and-send.png)
 
 ## Step 4 - Decoding the message
-Now that we have encoded the message and sent it to The Things Network we need to tell The Things Network what to do with it.
+Now that we have encoded the message and sent it to The Things Stack we need to tell The Things Stack what to do with it.
 
-- In your application on The Things Network, go to the tab named `Payload Formats`
+- In your application on The Things Stack, go to the tab named `Payload Formatters`
 - In here we can write code to decrypt the data we get from our device.
 - Enter the following into the decoder
 
@@ -192,6 +192,5 @@ Finally the numbers are returned as field 1, field 2 and field 3.
 
 ### The Decoded Message
 
-You can also now go to the `Data` tab on your The Things Network application to see the data being sent, just like before, but now the "decoded" values are shown as well.
+You can also now go to the `Live Data` tab on your The Things Network application to see the data being sent, just like before, but now the "decoded" values are shown as well.
 
-![Decoded Payload](readme-images/decoded-payload.jpg)
